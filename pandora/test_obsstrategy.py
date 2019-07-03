@@ -146,15 +146,15 @@ def test_varyElngZeta90():
 
 
 
-#def test_varyElngZeta80():
-#    alpha_rad = 0
-#    maxZenithAngle_rad = np.radians(80)
-#    func = obs.computeExtremaOfOrbitalPhase_rad
-#
-#    eLng = [30, 60, 90, 120, 150, 210, 240, 270, 300, 330]
-#    expected = [
-#                [153.435, 333.435],
-#                [139.106, 319.107],
+def test_varyElngZeta80():
+    alpha_rad = 0
+    maxZenithAngle_rad = np.radians(80)
+    func = obs.computeExtremaOfOrbitalPhase_rad
+
+    eLng = [0, 30] #, 60, 90, 120, 150, 210, 240, 270, 300, 330]
+    expected = [
+                [14.2158, 165.7841],
+                [140, 347],
 #                [135, 315],
 #
 #                [139.106, 319.107],
@@ -167,23 +167,14 @@ def test_varyElngZeta90():
 #
 #                [40.893, 220.893],
 #                [26.565, 206.565],
-#               ]
-#
-#    starUnitVec = obs.computeStarUnitVector(0, 45)
-#    res = func(alpha_rad, starUnitVec, maxZenithAngle_rad)
-#    res = np.degrees(res)
-#    assert isZeroAndPi(res)
-#
-#    starUnitVec = obs.computeStarUnitVector(180, 45)
-#    res = func(alpha_rad, starUnitVec, maxZenithAngle_rad)
-#    res = np.degrees(res)
-#    assert isZeroAndPi(res)
-#
-#    for i, lng in enumerate(eLng):
-#        starUnitVec = obs.computeStarUnitVector(lng, 45)
-#        res = func(alpha_rad, starUnitVec, maxZenithAngle_rad)
-#        res = np.degrees(res)
-#        assert np.allclose(res, expected[i]), "%i %s" %(i, res)
+               ]
+
+
+    for i, lng in enumerate(eLng):
+        starUnitVec = obs.computeStarUnitVector(lng, 45)
+        res = func(alpha_rad, starUnitVec, maxZenithAngle_rad)
+        res = np.degrees(res)
+        assert np.allclose(res, expected[i]), "%i %s" %(i, res)
 
 
 #def test_varyAlphaElng0Elat45Zeta90():
