@@ -231,7 +231,6 @@ def plotEarthAngleCurve(alpha_rad, eLng_deg, eLat_deg, maxOffZenith_deg):
         """
 
     twopi = 2 * np.pi
-#    earthAvoidanceAngle_rad = np.radians(earthAvoidanceAngle_deg)
     maxOffZenith_rad = np.radians(maxOffZenith_deg)
     svec = computeStarUnitVector(eLng_deg, eLat_deg)
 
@@ -250,6 +249,7 @@ def plotEarthAngleCurve(alpha_rad, eLng_deg, eLat_deg, maxOffZenith_deg):
     plt.fill_between(phase_deg, maxOffZenith_deg, 180, alpha=.3, color='r')
     plt.pause(.01)
 
+#    print(alpha_rad, svec, maxOffZenith_rad)
     x1, x2 = computeExtremaOfOrbitalPhase_rad(alpha_rad, svec, maxOffZenith_rad)
     if x1 < 0:
         x1 += twopi
@@ -259,32 +259,23 @@ def plotEarthAngleCurve(alpha_rad, eLng_deg, eLat_deg, maxOffZenith_deg):
     x1, x2 = np.degrees([x1, x2])
     plt.axvline(x1)
     plt.axvline(x2, ls=":")
+    print("[%.6f, %.6f], " %(x1, x2))
 
-    alpha_rad = 0
-    dotprod=[]
-    for rho_rad in phase:
-        tvec = computeTelescopeUnitVector(alpha_rad, rho_rad)
-        dotprod.append(np.dot(tvec, svec))
-
-    angle_from_earth_deg = np.degrees( np.arccos(dotprod) )
-    phase_deg = phase * 180 / np.pi
-    plt.plot(phase_deg, angle_from_earth_deg, alpha=.4, label="$\alpha=0$", color='C1')
-    x1, x2 = computeExtremaOfOrbitalPhase_rad(alpha_rad, svec, maxOffZenith_rad)
-    if x1 < 0:
-        x1 += np.pi
-    x1, x2 = np.degrees([x1, x2])
-    plt.axvline(x1, alpha=.4, color='C1')
-    plt.axvline(x2, alpha=.4, color='C1')
-    print(x1, x2)
-
-
-#    plt.axvline(x1 + 90, ls="--")
-#    plt.axvline( (x2 + 90) % 360, ls="--")
-
-#    print(x1, x2)
-#    if np.allclose([x2], [360]):
-#        plt.axvline(0)
-
+#    alpha_rad = 0
+#    dotprod=[]
+#    for rho_rad in phase:
+#        tvec = computeTelescopeUnitVector(alpha_rad, rho_rad)
+#        dotprod.append(np.dot(tvec, svec))
+#
+#    angle_from_earth_deg = np.degrees( np.arccos(dotprod) )
+#    phase_deg = phase * 180 / np.pi
+#    plt.plot(phase_deg, angle_from_earth_deg, alpha=.4, label="$\alpha=0$", color='C1')
+#    x1, x2 = computeExtremaOfOrbitalPhase_rad(alpha_rad, svec, maxOffZenith_rad)
+#    if x1 < 0:
+#        x1 += np.pi
+#    x1, x2 = np.degrees([x1, x2])
+#    plt.axvline(x1, alpha=.4, color='C1')
+#    plt.axvline(x2, alpha=.4, color='C1')
 
     plt.ylim(0, 180)
     plt.ylabel("Zenith Angle (deg) \nlower is better")
