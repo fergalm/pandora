@@ -1,0 +1,85 @@
+
+Determining the duty cycle for Pandora
+
+Pandora will be launched into a low Earth orbit, aligned so the spacecraft orbits in a plane roughly perpendicular the direction from the Earth to the sun. The duty cycle for a celestial object (e.g. a star) is the fraction of time that object is observable by Pandora and not obscured by the Earth, or the sun. The duty cycle depends on the star staying within both the Earth avoidance cone, and the sun avoidance cone.
+
+
+\section{Calculating duty cycle due to Earth avoidance}
+Let \hat{t} be the unit vector from the centre of the Earth to the telescope.
+Let \hat{s} be the unit vector from the centre of the coorinate system to the target star. Assume the star is at infinity, so we don't have to adjust \hat{s} for the exact location of the Earth.
+
+From the perspective of the telescope, a star is observable if it is near the zenith angle (away from the Earth, or ``up''), and unobservable if it is near the nadir-angle. The telescope (or zenith) vector will of course change as a function of orbital phase.  Let us define a maximum angle away from nadir for which a star is still observable, $\vareps$. The the condition of observability is therefore that $\hat{t} \dot \hat{s} < \cos{\vareps}$.
+
+If the right ascension and declination are labeled $\lambda, \phi$, respectively, \hat{s} = $ (s_x, s_y, s_z) = (\cos{\lambda} \cos{\phi}, \sin{\lambda} \cos{\phi}, \sin{\phi})$. All that remains is to determine \hat{t}. The telescope vector will vary as a function of both orbital phase of the telescope around the Earth, and the orbital phase of the Earth around the Sun.
+
+
+
+Let \hat{e} be the unit vector from the sun to the Earth. Assume, for the sake of simplicity, that the Earth's orbit is circular. Then, in ecliptic plane coordinates, 
+
+\begin{equation}
+\hat{e} = ( \cos{\alpha}, \sin{\alpha}, 0)
+\end{equation}
+
+where $\alpha$ is the Earth orbital phase angle, which varies between 0 and $2\pi$ over the course of a year.
+
+Call the plane of the telescope's orbit around the Earth uv. We seek basis vectors within the uv-plane that we can project the telescope vector onto.
+Let \hat{u} and \hat{v} be two vectors in the plane uv such that the vectors \hat{u}, \hat{v} and \hat{t} are all perpendicular and satisfy the right hand rule. We further arbitrarily define \hat{v} = (0,0,1). Then
+
+\begin{equation}
+\hat{e} = \hat{u} \cross \hat{v}
+
+\doublearrow \hat{u} = \hat{v} \cross \hat{u}
+
+\doublearrow \hat{u} = (-\sin{\alpha}, \cos{\alpha}, 0)
+\end{equation}
+
+If we assume a circular orbit for the telescope around the Earth, we can write 
+
+\begin{equation}
+\hat{t} = \cos{\rho} \hat{u} + \sin{\rho} \hat{v}
+\end{equation}
+
+%Want vertical vectors here
+where $\rho$ is the telescope's orbital phase. We can then convert \hat{t} into ecliptic plane coordinates as \hat{t} = {\hat{t} \hat{x}, \hat{t} \hat{y}, \hat{t} \hat{z} = 
+$( -\sin{\alpha} \cos{\rho}, \cos{\alpha}, \cos{\rho}, \sin{\rho})$
+
+
+\subsection{Finding the extrema of observability}
+The points in the orbit where the star comes in and out of observability are given by $\hat{t} \dot \hat{s} = \cos{\vareps}$
+Working through the arithmetic, we end up with
+
+\begin{equation}
+\cos{\rho} (\cos{\alpha} s_y - \sin{\alpha} s_x) + \sin{\rho} s_z - \cos{\vareps} = 0
+\end{equation}
+
+Set
+$$
+T_1 = \cos{\alpha} s_y - \sin{\alpha} s_x
+T_2 = s_z
+T_3 = \cos{\vareps}
+$$
+
+Then 
+\begin{equation}
+T_1\cos{\rho} = T_3 - T_2 \sin{\rho}  \label{trig}
+\end{equation}
+
+Squaring both sides, and replacing $\cos^2{\rho}$ with $1 - \sin^2{\rho}$ gives, after a little arithmetic
+
+$$
+(T_1^2 + T_2^2) \sin^2{\rho} - 2T_1 T_2 \sin{\rho} + (T_3^2 - T_1^2) = 0
+$$
+
+We can solve this quadratic equation to obtain two values for $\sin{\rho}$, the max and min orbital phase that a star can be observed at. Note that if a star is either continuously observable, or never observable, this equation will have no solutions, and we'll need to treat that separately.
+
+Now, the sine of an angle is only strictly defined within a quarter of a circle, and the arcsin function admits two acceptable answers, each 180 degrees away from each other. To figure out which is the correct answer, we return to Eqn~\ref{trig} and re-write it as 
+
+$$T_2 \sin{\rho}  = T_3 - T_1\cos{\rho}  $$
+
+Again we square it, and replace $\sin^2{\rho}$ with $1- \cos^2{\rho}$, and end up with 
+
+$$
+(T_1^2 + T_2^2) \cos^2{\rho} - 2T_1 T_3 \sin{\rho} + (T_3^2 - T_2^2) = 0
+$$
+
+If we solve for both $\sin{\rho}$ and $\cos{\rho}$, we can figure out the correct quadrant for $\rho$.
