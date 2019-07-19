@@ -60,12 +60,6 @@ def computeStarUnitVector(ecliptic_lng_deg, ecliptic_lat_deg):
 
 def computeDutyCycle(alpha_rad, starUnitVec, maxZenithAngle_rad):
 
-    #@TODO, make this a param
-    maxSunEarthAngle_rad = np.radians(80)
-    earthUnitVec = computeEarthUnitVector(alpha_rad)
-#    debug()
-#    if np.dot(earthUnitVec, starUnitVec) < np.cos(maxSunEarthAngle_rad):
-
     try:
         angles_rad = computeExtremaOfOrbitalPhase_rad(alpha_rad,
                                                       starUnitVec,
@@ -81,6 +75,8 @@ def computeDutyCycle(alpha_rad, starUnitVec, maxZenithAngle_rad):
 
     cos_zeta = np.cos(maxZenithAngle_rad)
     if dutyCycle > .5 and cos_zeta > 0:
+        dutyCycle = 1 - dutyCycle
+    elif dutyCycle < .5 and cos_zeta < 0:
         dutyCycle = 1 - dutyCycle
 
     return dutyCycle
@@ -102,46 +98,20 @@ def computeExtremaOfOrbitalPhase_rad(alpha_rad, starUnitVec, maxZenithAngle_rad)
     svec = starUnitVec
     term1 =  (svec[1] * np.cos(alpha_rad))
     term1 -= (svec[0] * np.sin(alpha_rad))
-#    term1 = -(svec[1] * np.sin(alpha_rad))
-#    term1 += (svec[0] * np.cos(alpha_rad))
     term2 = svec[2]
     term3 = np.cos(maxZenithAngle_rad)
 
     sin_rho = computeSineRho(term1, term2, term3)
     cos_rho = computeCosineRho(term1, term2, term3)
+    rho_rad = getRhoFromSinCos(sin_rho, cos_rho, alpha_rad, svec, maxZenithAngle_rad)
 
-#    debug()
-    method = 'default2pi'
-
-    if method == 'default':
-        rho_rad = getRhoFromSinCos(sin_rho, cos_rho, alpha_rad, svec, maxZenithAngle_rad)
-
-        if np.all(rho_rad < 0):
-            rho_rad += 2*np.pi
-        elif np.any(rho_rad < 0):
-            rho_rad += np.pi
-    elif method == 'default2pi':
-        rho_rad = getRhoFromSinCos(sin_rho, cos_rho, alpha_rad, svec, maxZenithAngle_rad)
-
-        twopi = 2 * np.pi
-        if rho_rad[0] < 0:
-            rho_rad[0] += twopi
-        if rho_rad[1] < 0:
-            rho_rad[1] += twopi
-
-    elif method == 'sineonly':
-        rho_rad = np.zeros(2)
-        for i in range(2):
-            rho_rad[i] = np.arcsin(sin_rho[i])
-
-            if not doesRhoSatisfyEqn(alpha_rad, rho_rad[i], svec, maxZenithAngle_rad):
-                    rho_rad[i] = np.pi - rho_rad[i]
-
-            if rho_rad[i] < 0:
-                rho_rad[i] += 2 * np.pi
-    else:
-        assert False, "Unknown trig resolution method"
-
+    #@TODO, if no solution, decide if visibility is 0 or 100%
+    #Correct any -ve angles to +ve
+    twopi = 2 * np.pi
+    if rho_rad[0] < 0:
+        rho_rad[0] += twopi
+    if rho_rad[1] < 0:
+        rho_rad[1] += twopi
 
     return np.sort(rho_rad)
 
@@ -152,13 +122,6 @@ def getRhoFromSinCos(sin_rho, cos_rho, alpha_rad, svec, maxZenithAngle_rad):
 
     if not doesRhoSatisfyEqn(alpha_rad, rho_rad[0], svec, maxZenithAngle_rad):
         rho_rad = np.arctan2(sin_rho, cos_rho[::-1])
-
-#    if not doesRhoSatisfyEqn(alpha_rad, rho_rad[0], svec, maxZenithAngle_rad):
-#            rho_rad = np.arctan2(sin_rho, -cos_rho[::-1])
-##
-#    if not doesRhoSatisfyEqn(alpha_rad, rho_rad[0], svec, maxZenithAngle_rad):
-#            rho_rad = np.arctan2(-cos_rho, sin_rho[::-1])
-
     assert doesRhoSatisfyEqn(alpha_rad, rho_rad[0], svec, maxZenithAngle_rad), rho_rad
 
     return rho_rad
@@ -167,8 +130,6 @@ def getRhoFromSinCos(sin_rho, cos_rho, alpha_rad, svec, maxZenithAngle_rad):
 def doesRhoSatisfyEqn(alpha_rad, rho_rad, starUnitVec, maxZenithAngle_rad):
     tvec = computeTelescopeUnitVector(alpha_rad, rho_rad)
 
-#    print( np.dot(tvec, starUnitVec))
-#    print(np.cos(maxZenithAngle_rad))
     opt1 = np.allclose(np.dot(tvec, starUnitVec),
                        np.cos(maxZenithAngle_rad), 1e-6)
 
