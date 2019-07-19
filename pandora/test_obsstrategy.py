@@ -230,15 +230,27 @@ def test_varyAlphaElng0Elat45Zeta60():
 
     starUnitVec = obs.computeStarUnitVector(0, 45)
 
-    alpha_deg = [0, 30, 60, 90, 120, 150, 210, 240, 270, 300, 330]
+    alpha_deg = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330]
     alpha_rad = np.radians(alpha_deg)
     expected = [
                 [45.000000, 135.000000],
                 [65.796572, 167.333531],
                 [73.204928, 188.581861],
+
+                [75.000000, 195.000000], #90
+                [73.204928, 188.581861],
+                [65.796572, 167.333531],
+
+                [45.000000, 135.000000], #180
+                [12.666469, 114.203428],
+                [106.795072, 351.418139],
+
+                [105.000000, 345.000000], #270
+                [106.795072, 351.418139],
+                [12.666469, 114.203428],
                ]
 
-#    assert len(alpha_rad) == len(expected)  #Sanity check
+    assert len(alpha_rad) == len(expected)  #Sanity check
     #    debug()
     for i in range(len(alpha_rad)):
         res = func(alpha_rad[i], starUnitVec, maxZenithAngle_rad)
