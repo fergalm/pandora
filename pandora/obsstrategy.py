@@ -107,15 +107,41 @@ def computeExtremaOfOrbitalPhase_rad(alpha_rad, starUnitVec, maxZenithAngle_rad)
     term2 = svec[2]
     term3 = np.cos(maxZenithAngle_rad)
 
-#    print("Terms: ", term1, term2, term3)
     sin_rho = computeSineRho(term1, term2, term3)
     cos_rho = computeCosineRho(term1, term2, term3)
-    rho_rad = getRhoFromSinCos(sin_rho, cos_rho, alpha_rad, svec, maxZenithAngle_rad)
 
-    if np.all(rho_rad < 0):
-        rho_rad += 2*np.pi
-    elif np.any(rho_rad < 0):
-        rho_rad += np.pi
+#    debug()
+    method = 'default2pi'
+
+    if method == 'default':
+        rho_rad = getRhoFromSinCos(sin_rho, cos_rho, alpha_rad, svec, maxZenithAngle_rad)
+
+        if np.all(rho_rad < 0):
+            rho_rad += 2*np.pi
+        elif np.any(rho_rad < 0):
+            rho_rad += np.pi
+    elif method == 'default2pi':
+        rho_rad = getRhoFromSinCos(sin_rho, cos_rho, alpha_rad, svec, maxZenithAngle_rad)
+
+        twopi = 2 * np.pi
+        if rho_rad[0] < 0:
+            rho_rad[0] += twopi
+        if rho_rad[1] < 0:
+            rho_rad[1] += twopi
+
+    elif method == 'sineonly':
+        rho_rad = np.zeros(2)
+        for i in range(2):
+            rho_rad[i] = np.arcsin(sin_rho[i])
+
+            if not doesRhoSatisfyEqn(alpha_rad, rho_rad[i], svec, maxZenithAngle_rad):
+                    rho_rad[i] = np.pi - rho_rad[i]
+
+            if rho_rad[i] < 0:
+                rho_rad[i] += 2 * np.pi
+    else:
+        assert False, "Unknown trig resolution method"
+
 
     return np.sort(rho_rad)
 
@@ -129,11 +155,11 @@ def getRhoFromSinCos(sin_rho, cos_rho, alpha_rad, svec, maxZenithAngle_rad):
 
 #    if not doesRhoSatisfyEqn(alpha_rad, rho_rad[0], svec, maxZenithAngle_rad):
 #            rho_rad = np.arctan2(sin_rho, -cos_rho[::-1])
-#
+##
 #    if not doesRhoSatisfyEqn(alpha_rad, rho_rad[0], svec, maxZenithAngle_rad):
 #            rho_rad = np.arctan2(-cos_rho, sin_rho[::-1])
 
-#    assert doesRhoSatisfyEqn(alpha_rad, rho_rad[0], svec, maxZenithAngle_rad), rho_rad
+    assert doesRhoSatisfyEqn(alpha_rad, rho_rad[0], svec, maxZenithAngle_rad), rho_rad
 
     return rho_rad
 
@@ -162,6 +188,9 @@ def computeSineRho(term1, term2, term3):
     B = -2 * term2 * term3
     C = term3**2 - term1**2
 
+    #Compute roots of quadratic equation. Result sometimes has some
+    #non-zero imaginary component due to round off error. We just trucate
+    #this away
     sin_rho = np.roots([A,B,C])
     sin_rho = np.real(sin_rho) #Debugging code
 
@@ -182,8 +211,11 @@ def computeCosineRho(term1, term2, term3):
     B = -2 * term1 * term3
     C = term3**2 - term2**2
 
+    #Compute roots of quadratic equation. Result sometimes has some
+    #non-zero imaginary component due to round off error. We just trucate
+    #this away
     cos_rho = np.roots([A,B,C])
-    cos_rho = np.real(cos_rho) #Debugging code
+    cos_rho = np.real(cos_rho)
 
     assert len(cos_rho) == 2
     assert np.all(np.isreal(cos_rho)), cos_rho
@@ -243,6 +275,7 @@ def plotEarthAngleCurve(alpha_rad, eLng_deg, eLat_deg, maxOffZenith_deg):
     x1, x2 = np.degrees([x1, x2])
     plt.axvline(x1, alpha=.4, color='C1')
     plt.axvline(x2, alpha=.4, color='C1')
+    print(x1, x2)
 
 
 #    plt.axvline(x1 + 90, ls="--")
@@ -285,3 +318,13 @@ def main():
     plt.xlabel("Telescope orbital phase")
     plt.ylabel("Angle between target and Earth")
     plt.title("For ecliptic longitude of %.1f deg" %(elng_deg))
+
+
+
+def isind(sine):
+    """Compute inverse sine of argument in degrees"""
+    return np.degrees(np.arcsin(sine))
+
+def icosd(cosine):
+    """Compute inverse sine of argument in degrees"""
+    return np.degrees(np.arcsin(cosine))
