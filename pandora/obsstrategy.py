@@ -58,7 +58,11 @@ def computeStarUnitVector(ecliptic_lng_deg, ecliptic_lat_deg):
 
 
 
-def computeDutyCycle(alpha_rad, starUnitVec, maxZenithAngle_rad):
+def computeDutyCycle(alpha_rad, starUnitVec, maxAntiSolarAngle_rad, maxZenithAngle_rad):
+    earthUnitVec = computeEarthUnitVector(alpha_rad)
+
+    if np.dot(earthUnitVec, starUnitVec) < np.cos(maxAntiSolarAngle_rad):
+        return 0
 
     try:
         angles_rad = computeExtremaOfOrbitalPhase_rad(alpha_rad,
